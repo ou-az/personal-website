@@ -23,9 +23,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <MainLayout />,
   }
-], {
-  basename: process.env.NODE_ENV === 'production' ? '/personal-website' : '/'
-});
+]);
 
 function App() {
   return <RouterProvider router={router} />;
