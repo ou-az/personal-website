@@ -18,12 +18,20 @@ const MainLayout = () => (
   </div>
 );
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <MainLayout />,
+    }
+  ],
   {
-    path: '/',
-    element: <MainLayout />,
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true
+    }
   }
-]);
+);
 
 function App() {
   return <RouterProvider router={router} />;
