@@ -1,7 +1,39 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const app = express();
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply rate limiting to all requests
+app.use(limiter);
 
 // Log all requests
 app.use((req, res, next) => {
@@ -16,8 +48,16 @@ if (!fs.existsSync(buildPath)) {
   process.exit(1);
 }
 
-// Serve static files from the build directory
-app.use(express.static(buildPath));
+// Serve static files from the build directory with cache headers
+app.use(express.static(buildPath, {
+  maxAge: '1h',
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      // Don't cache HTML files
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  },
+}));
 
 // Handle all routes by serving index.html
 app.get('*', (req, res) => {
