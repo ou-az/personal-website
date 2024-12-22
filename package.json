@@ -5,7 +5,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "homepage": "https://ou-az.github.io/personal-website",
   "dependencies": {
     "@heroicons/react": "^2.1.1",
     "express": "^4.21.2",
